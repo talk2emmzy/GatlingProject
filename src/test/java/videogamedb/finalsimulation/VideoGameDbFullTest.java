@@ -10,8 +10,8 @@ public class VideoGameDbFullTest extends Simulation {
 
     // HTTP PROTOCOL
     private HttpProtocolBuilder httpProtocol = http
-            .baseUrl("https://videogamedb.uk/api")
-            .acceptHeader("application/json")
+            .baseUrl("http://api-web.fgntreasury.gov.ng")
+            .acceptHeader("application/json, text/plain, */*")
             .contentTypeHeader("application/json");
 
     // RUNTIME PARAMETERS
@@ -33,51 +33,47 @@ public class VideoGameDbFullTest extends Simulation {
     // HTTP CALLS
     private static ChainBuilder authenticate =
             exec(http("Authenticate")
-                    .post("/authenticate")
+                    .post("/api/authenticate")
                     .body(StringBody("{\n" +
-                            "  \"password\": \"admin\",\n" +
-                            "  \"username\": \"admin\"\n" +
+                            "  \"username\": \"NFFINIT\",\n" +
+                            "  \"password\": \"Simple@123\"\n" +
                             "}"))
                     .check(jmesPath("token").saveAs("jwtToken")));
 
-    private static ChainBuilder getAllVideoGames =
-            exec(http("Get all video games")
-                    .get("/videogame"));
-
-    private static ChainBuilder createNewGame =
-            feed(jsonFeeder)
-                    .exec(http("Create New Game - #{name}")
-                                    .post("/videogame")
-                                    .header("Authorization", "Bearer #{jwtToken}")
-                                    .body(ElFileBody("bodies/newGameTemplate.json")).asJson());
-
-    private static ChainBuilder getLastPostedGame =
-            exec(http("Get Last Posted Game - #{name}")
-                    .get("/videogame/#{id}")
-                    .check(jmesPath("name").isEL("#{name}")));
-
-    private static ChainBuilder deleteLastPostedGame =
-            exec(http("Delete game - #{name}")
-                    .delete("/videogame/#{id}")
-                    .header("Authorization", "Bearer #{jwtToken}")
-                    .check(bodyString().is("Video game deleted")));
+//    private static ChainBuilder getAllVideoGames =
+//            exec(http("User login with valid data")
+//                    .get(""));
+//
+//    private static ChainBuilder createNewGame =
+//            feed(jsonFeeder)
+//                    .exec(http("Create New Game - #{name}")
+//                                    .post("/videogame")
+//                                    .header("Authorization", "Bearer #{jwtToken}")
+//                                    .body(ElFileBody("bodies/newGameTemplate.json")).asJson());
+//
+//    private static ChainBuilder getLastPostedGame =
+//            exec(http("Get Last Posted Game - #{name}")
+//                    .get("/videogame/#{id}")
+//                    .check(jmesPath("name").isEL("#{name}")));
+//
+//    private static ChainBuilder deleteLastPostedGame =
+//            exec(http("Delete game - #{name}")
+//                    .delete("/videogame/#{id}")
+//                    .header("Authorization", "Bearer #{jwtToken}")
+//                    .check(bodyString().is("Video game deleted")));
 
     // SCENARIO OR USER JOURNEY
-    // 1. Get all video games
-    // 2. Create a new game
-    // 3. Get details of newly created game
-    // 4. Delete newly created game
-    private ScenarioBuilder scn = scenario("Video game db - final simulation")
+    private ScenarioBuilder scn = scenario("TMS API LoadTest - final simulation")
             .forever().on(
-                    exec(getAllVideoGames)
+                    exec(authenticate)
                             .pause(2)
-                            .exec(authenticate)
-                            .pause(2)
-                            .exec(createNewGame)
-                            .pause(2)
-                            .exec(getLastPostedGame)
-                            .pause(2)
-                            .exec(deleteLastPostedGame)
+//                            .exec(authenticate)
+////                            .pause(2)
+////                            .exec(createNewGame)
+////                            .pause(2)
+////                            .exec(getLastPostedGame)
+////                            .pause(2)
+////                            .exec(deleteLastPostedGame)
             );
 
     // LOAD SIMULATION
